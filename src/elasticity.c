@@ -1,4 +1,4 @@
-#include "elasticity.h"
+#include "../headers/elasticity.h"
 
 static void p1_stifness_matrix (double dphi[6], double h[3][3] , double det, double S[6][6]){
 

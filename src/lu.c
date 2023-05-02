@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "lu.h"
+#include "../headers/lu.h"
 
 int lu(Matrix * A) {
 	int m = A->m;

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "matrix.h"
+#include "../headers/matrix.h"
 
 Matrix * allocate_matrix(int m, int n) {
 	Matrix * mat = (Matrix*) malloc(sizeof(Matrix));

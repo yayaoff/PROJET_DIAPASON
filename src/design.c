@@ -1,8 +1,7 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <gmshc.h>
+#include "../../gmsh-sdk/include/gmshc.h"
 
 void designTuningFork(double r1, double r2, double e, double l, double meshSizeFactor, char * filename) {
   /**
