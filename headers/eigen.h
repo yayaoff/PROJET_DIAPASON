@@ -9,5 +9,3 @@ double inner(double* a, double* b, int n);
 double normalize(double* a, int n);
 
 double power_iteration(Matrix *A, double *v);
-
-double compute_freq(double r1, double r2, double e, double l, double meshSizeFactor, char * filename,int k,char *argv[],int argc);
