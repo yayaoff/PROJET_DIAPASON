@@ -2,8 +2,8 @@ GMSH_DIR := ../gmsh-sdk
 CC := gcc
 LIB := $(GMSH_DIR)/lib/libgmsh.so
 
-PROG := project.c src/elasticity.c src/lu.c src/matrix.c src/design.c src/eigen.c
-OBJS := project.o elasticity.o lu.o matrix.o eigen.o design.o
+PROG := project.c src/elasticity.c src/lu.c src/matrix.c src/design.c src/eigen.c src/opti.c
+OBJS := project.o elasticity.o lu.o matrix.o eigen.o design.o opti.o
 LDFLAGS := -Wl,-rpath,$(GMSH_DIR)/lib -lm
 
 fec:

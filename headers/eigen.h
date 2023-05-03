@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "matrix.h"
 
 void remove_bnd_lines (Matrix *K, Matrix *M, size_t *bnd_nodes, size_t n_bnd_nodes, Matrix **K_new, Matrix **M_new, int* invperm);
 

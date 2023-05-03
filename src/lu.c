@@ -18,8 +18,9 @@ int lu(Matrix * A) {
 }
 
 int solve(Matrix * LU, double * y) {
+	
 	int m = LU->m;
-	double * x = y;
+	double *x = y;
 
 	// Résolution de L*x = y par substitution avant
 	for(int i = 0; i < m; i++) {

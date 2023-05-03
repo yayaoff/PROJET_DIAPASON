@@ -8,14 +8,19 @@
 #include "headers/lu.h"
 #include "headers/design.h"
 #include "headers/eigen.h"
+#include "headers/opti.h"
 
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
      _a > _b ? _a : _b; })
 
-double compute_freq(double r1, double r2, double e, double l, double meshSizeFactor, char * filename,char *argv[],int argc){
+int k;
+double r1; double r2; double e; double l; double meshSizeFactor; char * filename;
 
+// tag_vis == 1 si on souhaite visualiser le résultat , 0 sinon
+double *compute_freq( char *argv[],int argc, int tag_vis){
+  
   // Define physical constants
   double E = 0.7e11;  // Young's modulus for Aluminum
   double nu = 0.3;    // Poisson coefficient
@@ -25,10 +30,11 @@ double compute_freq(double r1, double r2, double e, double l, double meshSizeFac
   int ierr;
   gmshInitialize(argc, argv, 0, 0, &ierr);
   
-  designTuningFork(6e-3, 11e-3, 38e-3, 82e-3, 0.3, NULL);
+  designTuningFork(r1, r2, l, e, meshSizeFactor, filename);
   
   // Number of vibration modes to find
-  int k = atoi(argv[1]);
+  k = atoi(argv[1]);
+  double *frequencies = malloc(sizeof(double)*k);
 
   // Assemble the 2 matrices of the linear elasticity problem: 
   // M is the mass matrix
@@ -65,7 +71,9 @@ double compute_freq(double r1, double r2, double e, double l, double meshSizeFac
     lambda = power_iteration(A, v);
     freq = 1./(2*M_PI*sqrt(lambda));
 
-    fprintf(file, "%.9lf ", freq);
+    frequencies[ki] = freq;
+
+    if(tag_vis==1) fprintf(file, "%.9lf ", freq);
 
     printf("lambda = %.9e, f = %.3lf\n", lambda, freq);
     // Deflate matrix
@@ -85,18 +93,18 @@ double compute_freq(double r1, double r2, double e, double l, double meshSizeFac
       vall[2*(i)+1] = v[2*iv+1];
       iv++;
     }
-    visualize_in_gmsh(vall, K->m/2);
+    if(tag_vis ==1) visualize_in_gmsh(vall, K->m/2);
   }
   fclose(file);
-  gmshFltkRun(&ierr);
+  if(tag_vis ==1) gmshFltkRun(&ierr);
 
   free_matrix (K);
   free_matrix (M);
   free_matrix (K_new);
   free_matrix (M_new);
   free(boundary_nodes);
+  return frequencies;
 }
-
 
 int main (int argc, char *argv[]) {
 
@@ -110,15 +118,25 @@ int main (int argc, char *argv[]) {
 		return -1;
   } 
 
-  double f_target =  1244.51 ; // We want fabs(freq-f_target) <= EPS
+  double f_target =  1244.51 ; //frequence for D5# [Hz] 
+  // We want fabs(freq-f_target) <= EPS
 
-
-
-  // Parameters to optimize 
-  double r1; double r2; double e; double l; double meshSizeFactor;
-  
-  compute_freq(r1,r2,e,l,meshSizeFactor,NULL,argv,argc);
-
-
+  // Parameters to optimize : r1, r2, e, l
+  // Ici, on optimise le paramètre r1 et on fixe les autres arbitrairement-> Tester pour les 4 et voir
+  // pour quel paramètre on converge le plus vite ?
+  // Rmq : attention aux contraintes : r1 < r2
+  r1=6e-3; r2=11e-3; e=38e-3; l=82e-3; meshSizeFactor=0.3;filename=NULL;
+  double* frequencies = compute_freq(argv,argc,0);
+  double lower_bound = 0; double upper_bound = 1;
+  for(int mode_k=0; mode_k < k; k++){
+    double freq_act = frequencies[mode_k];
+    printf("Frequence before optimisation (k=%d) = %f\n",mode_k,freq_act);
+    double param_biss = bissection_method(lower_bound,upper_bound);
+    printf("Optimisation ended : found new paramater %f for previous paramater %f\n",param_biss,r1);
+    // Tester pour le nouveau paramètre
+    r1 = param_biss;
+  }
+  double* new_frequencies = compute_freq(argv,argc,1);
+  // for(int mode_k=0; mode_k < k; k++) printf("Frequence for mode %d = %f\n",mode_k, new_frequencies[mode_k]);
   return 0;
 }
